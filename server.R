@@ -56,11 +56,6 @@ server <- function(session, input, output) {
  observe({
     if (status() == 1 & input$user == "RES") {
       
-     # updatePickerInput(
-     #   session,
-     #   inputId = "BOERID",
-     #   choices = unique(df_lab$BOERID)
-     # )
     showTab(inputId = "tabs", 
             target = "Bodemlab-data")
     showTab(inputId = "tabs", 
@@ -70,23 +65,6 @@ server <- function(session, input, output) {
     }
  })
  
- # observe({
- #   if(input$user != "RES") {
- #     updatePickerInput(
- #       session,
- #       inputId = "BOERID",
- #       choices = input$user
- #     )
- #   }
-   # else if (input$user == "RES") {
- #   else {
- #     updatePickerInput(
- #       session,
- #       inputId = "BOERID",
- #       choices = unique(df_lab$BOERID)
- #     )
- #   } 
- # })
  
   observe({
     x <- input$BOERID
@@ -185,47 +163,6 @@ server <- function(session, input, output) {
                            input$y))
  }
  ) 
-  # output$scatterplot_res <- renderPlot(
-  #   df_lab %>% 
-  #     filter(BOERID %in% input$BOERID_res) %>% 
-  #     filter(Datum > input$datumrange_res[1],
-  #            Datum < input$datumrange_res[2]) %>% 
-  #     ggplot(aes(!!sym(input$x), !!sym(input$y))) +
-  #     geom_point(aes(color = BOERID), size = 3) +
-  #     geom_smooth(method = "lm")
-  # )
-  # 
-  # get_row_scatter_info <- reactive({
-  #   req(input$scatter_hover)
-  #   
-  #   l <- nearPoints(
-  #     df_lab %>% 
-  #       filter(BOERID %in% input$BOERID_res) %>% 
-  #       filter(Datum > input$datumrange_res[1],
-  #              Datum < input$datumrange_res[2]),
-  #     input$scatter_hover,
-  #     threshold = 10,
-  #     maxpoints = 1
-  #   )
-  #   return("test")
-  #   
-  # })
-
-  # output$scatter_info <- renderPrint({
-  #   req(get_row_scatter_info())
-  #   get_row_scatter_info()
-      # l <- nearPoints(
-      #   df_lab %>% 
-      #     filter(BOERID %in% input$BOERID_res) %>% 
-      #     filter(Datum > input$datumrange_res[1],
-      #            Datum < input$datumrange_res[2]),
-      #   input$scatter_hover,
-      #   threshold = 10
-      # )
-      # paste(c(l$Datum, l$BOERID, l$Perceel), sep = " ")
-      # ) %>% 
-      # select(Datum, BOERID, Perceel)
-  # })
   
 }
 
