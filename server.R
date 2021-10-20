@@ -8,6 +8,7 @@ server <- function(session, input, output) {
           target = "Onderzoek")
   
   
+ # login
   
   status <- eventReactive(
     input$button, {
@@ -22,6 +23,8 @@ server <- function(session, input, output) {
         return(2)
       }
   })
+  
+  
   
   modus <- reactive({
     if(status() == 0) {
@@ -38,70 +41,92 @@ server <- function(session, input, output) {
   output$modus <- renderText(
      paste0("Status: ", modus())
   )
+
+  
+  
+# Add the right BOERID in the choice list
+observe({
+  if(status() == 1) {
+    
+    if(input$user == "RES") {
+      print("check boerid")
+      x <- unique(df_lab$BOERID)
+      x_sen <- unique(df_beheer$BOERID) 
+      showTab(inputId = "tabs",
+              target = "Onderzoek")
+    }
+    
+    else {
+      x <- input$user
+      x_sen <- input$user
+    }
+    
+    updateSelectInput(
+      session,
+      inputId = "BOERID",
+      choices =  x
+      )
+    
+    updateSelectInput(
+      session,
+      inputId = "BOERID_sen",
+      choices =  x_sen
+      )
+    
+    showTab(
+      inputId = "tabs", 
+      target = "Bodemlab-data"
+      )
+    showTab(
+      inputId = "tabs", 
+      target = "Sensordata"
+    )
+    }
+})  
+
+  
   
  observe({
-    if(status() == 1 & input$user != "RES") {
-     updatePickerInput(
-       session,
-       inputId = "BOERID",
-       choices = input$user
-     )
-    showTab(inputId = "tabs", 
-            target = "Bodemlab-data")
-    showTab(inputId = "tabs", 
-            target = "Sensordata")
-    }
- }) 
-  
- observe({
-    if (status() == 1 & input$user == "RES") {
-      
-    showTab(inputId = "tabs", 
-            target = "Bodemlab-data")
-    showTab(inputId = "tabs", 
-            target = "Sensordata")
-    showTab(inputId = "tabs",
-            target = "Onderzoek")
-    }
+   priority = 9
+   x <- input$BOERID
+   updatePickerInput(
+     session,
+     inputId = "perceel",
+     choices = get_perceellist(x)
+   )
  })
  
+ observe({
+   priority = 8
+   x <- input$BOERID
+   y <- input$perceel
+   updateSelectInput(
+     session,
+     inputId = "parameter",
+     choices = get_parameterlist(x,y)
+     )
+   print("update parameterlijst")
+ })
  
   observe({
-    x <- input$BOERID
+    x <- input$BOERID_res
     updatePickerInput(
       session,
-      inputId = "perceel",
+      inputId = "perceel_res",
       choices = get_perceellist(x)
     )
-  })   
+    print("update perceel res")
+  })
+  
 
-  observe({
-    updateSelectInput(
-      session,
-      inputId = "parameter",
-      choices = get_parameterlist(input$BOERID))
-  })   
-
-  observe({
-    updateSelectInput(
-      session,
-      inputId = "parameter",
-      choices = get_parameterlist(input$BOERID))
-  })   
   observe({
     x <- input$BOERID
     updatePickerInput(session,
                       inputId = "perceel_sensor",
                       choices = get_perceellist(x))
+    print("update perceel sensor")
   })   
   
-  observe({
-    updateSelectInput(
-      session,
-      inputId = "y",
-      choices = get_parameterlist(input$BOERID_res)
-    )
-  })   
   
   observe({
     updateSelectInput(
@@ -109,32 +134,25 @@ server <- function(session, input, output) {
       inputId = "x",
       choices = get_xvar(input$BOERID_res, input$y)
     )
+    print("update xy research")
   })   
 
+  
   #Figuren
   
-  output$bodemdata <- renderGirafe({
-      girafe(ggobj = plot_grid(
-        plot_bodemdata(
-          input$perceel, 
-          input$datumrange,
-          input$parameter
-          ),
-        plot_bodemdata_mean(
-          input$datumrange,
-          input$parameter),
-        ncol = 1, align = "v"),
-        height_svg = 2*5,
-        width_svg = 6
-        )
-   }
+  output$bodemdata <- renderGirafe(
+    girafe(ggobj = plot_bodemdata(
+      input$perceel,
+      input$datumrange,
+      input$parameter)
+    )
   )
   
   
   output$handelingen <- renderGirafe({
     girafe(ggobj = plot_grid(
       plot_handeling(
-        input$BOERID_sen, 
+        input$BOERID_sen,
         input$datumrange_perceel
         ),
       plot_sensordata(
