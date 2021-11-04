@@ -90,17 +90,55 @@ plot_sensordata <- function(BOERID_sen,
                             datumrange_perceel,
                             sensorpar
                             ) {
-  p <- df_sensor %>% 
+  Interval <- as.duration(
+    interval(
+      datumrange_perceel[2], 
+      datumrange_perceel[1]
+      )
+    )
+ 
+  df <- df_sensor %>% 
+    filter(
+      datetime > datumrange_perceel[1],
+           datetime < datumrange_perceel[2]
+      ) 
+    
+  u <- "second"
+  if (Interval <= 50*60) {u <- "second"}
+  else if (Interval > 50*60) {u <- "minute"}
+  else if (Interval > 50*60*60) {u <- "hour"}
+  else if (Interval > 50*24*60*60) {u <- "day"}
+  else {Interval = "month"}
+  
+  df <- df %>% 
+    mutate(datetime = 
+             floor_date(
+               datetime, 
+               unit = u
+               )
+    )
+    
+  df_p <- df %>% 
+    filter(
+      Perceel %in% get_sensorperceellist(BOERID_sen)
+      ) %>% 
+    filter(!is.na(!!sym(sensorpar)))
+  
+    
+  p <- df_p %>% 
     filter(Perceel %in% get_sensorperceellist(BOERID_sen)) %>% 
     filter(datetime > datumrange_perceel[1],
            datetime < datumrange_perceel[2]) %>% 
-    ggplot(aes(datetime, !!sym(sensorpar), color = Perceel)) +
+    mutate(tp = paste(Perceel, datetime, sep = ", ")) %>% 
+    ggplot(aes(datetime, !!sym(sensorpar))) +
     geom_point_interactive(aes(data_id = Perceel,
-                              tooltip = Perceel),
+                              tooltip = tp, 
+                              color = Perceel),
                           size = 1, 
                           alpha = 0.1, color = "white") +
-    geom_line() +
-    # xlim(datumrange_perceel[1], datumrange_perceel[2]) +
+    geom_line(aes(color = Perceel)) +
+    geom_smooth(data = df, aes(datetime, !!sym(sensorpar))) + 
+    xlim(datumrange_perceel[1], datumrange_perceel[2]) +
     xlab("Datum") +
     theme(legend.position = "none")
   
@@ -114,8 +152,9 @@ plot_handeling <- function(BOERID_sen, datumrange_perceel)
     filter(Perceel %in% get_sensorperceellist(BOERID_sen)) %>%
     filter(Datum > datumrange_perceel[1],
            Datum < datumrange_perceel[2]) %>%
+    mutate(tp = paste(Perceel, Datum, sep = ", ")) %>% 
     ggplot(aes(Perceel, Datum, color = Perceel, shape = Categorie)) +
-    geom_point_interactive(aes(data_id = Handeling, tooltip = Handeling)) +
+    geom_point_interactive(aes(data_id = Handeling, tooltip = tp)) +
     ylim(datumrange_perceel[1], datumrange_perceel[2]) +
     coord_flip() +
     theme(legend.position = "none",

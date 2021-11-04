@@ -148,6 +148,7 @@ observe({
     )
   )
   
+
   
   output$handelingen <- renderGirafe({
     girafe(ggobj = plot_grid(
@@ -164,9 +165,6 @@ observe({
         input$BOERID_sen,
         input$datumrange_perceel
         ),
-      plot_sensormean(
-        input$datumrange_perceel,
-        input$sensorpar),
       ncol = 1, align = "v"),
       height_svg = 2*5,
       width_svg = 6
