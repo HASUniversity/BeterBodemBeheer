@@ -3,7 +3,7 @@ library(readxl)
 library(ggplot2)
 theme_set(theme_classic(base_size = 16))
 library(dplyr)
- library(tidyquant)
+library(tidyquant)
 library(lubridate)
 library(cowplot)
 library(ggiraph)
@@ -129,7 +129,7 @@ plot_sensordata <- function(BOERID_sen,
     filter(Perceel %in% get_sensorperceellist(BOERID_sen)) %>% 
     filter(datetime > datumrange_perceel[1],
            datetime < datumrange_perceel[2]) %>% 
-    mutate(tp = paste(Perceel, datetime, sep = ", ")) %>% 
+    mutate(tp = paste(Perceel, datetime,  sep = ", ")) %>% 
     ggplot(aes(datetime, !!sym(sensorpar))) +
     geom_point_interactive(aes(data_id = Perceel,
                               tooltip = tp, 
@@ -152,7 +152,7 @@ plot_handeling <- function(BOERID_sen, datumrange_perceel)
     filter(Perceel %in% get_sensorperceellist(BOERID_sen)) %>%
     filter(Datum > datumrange_perceel[1],
            Datum < datumrange_perceel[2]) %>%
-    mutate(tp = paste(Perceel, Datum, sep = ", ")) %>% 
+    mutate(tp = paste(Perceel, Datum, Handeling, sep = ", ")) %>% 
     ggplot(aes(Perceel, Datum, color = Perceel, shape = Categorie)) +
     geom_point_interactive(aes(data_id = Handeling, tooltip = tp)) +
     ylim(datumrange_perceel[1], datumrange_perceel[2]) +
